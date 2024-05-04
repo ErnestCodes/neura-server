@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import { NextFunction, Request, Response } from "express";
 
 export const authenticate = (

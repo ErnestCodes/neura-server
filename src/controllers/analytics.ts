@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import { Response, Request } from "express";
 import { db } from "../utils/db";
 import { gemini } from "../utils/core";

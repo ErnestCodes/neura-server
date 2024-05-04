@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import express, { Request, Response } from "express";
 import { authenticate } from "./middleware";
 import { handleScore } from "./controllers/score";
