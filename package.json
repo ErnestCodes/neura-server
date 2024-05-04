@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "npx prisma generate && tsc",
-    "start": "npm run build && node build/src/app.js"
+    "build": "tsc",
+    "start": "npx prisma generate && npm run build && node build/src/app.js"
   },
   "keywords": [],
   "author": "Nnaemeka Onukwube",
