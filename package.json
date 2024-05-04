@@ -2,12 +2,12 @@
   "name": "neura-server",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "build/src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc",
-    "start": "npx prisma generate && npm run build && node build/src/app.js"
+    "build": "npm install && tsc",
+    "start": "npx prisma generate && node build/src/app.js"
   },
   "keywords": [],
   "author": "Nnaemeka Onukwube",
