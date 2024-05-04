@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Organization {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  name         String    @db.Text
+  description  String?   @db.Text
+  imageUrl     String?   @db.Text
+  supportEmail String?   @db.Text
+  websiteUrl   String?   @db.Text
+  theme        String?   @db.Text
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
+  Onboarding   Boolean   @default(false)
+  credits      Int       @default(5)
+
+  members    Member[]
+  interviews Interviews[]
+
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model Member {
+  id    String  @id @default(uuid())
+  name  String  @db.Text
+  email String? @db.Text
+  title String? @db.Text
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+}
+
+model Interviews {
+  id              String   @id @default(uuid())
+  role            String   @db.Text
+  userId          String
+  skills          String?  @db.Text
+  email           String?  @db.Text
+  startDate       String?  @db.Text
+  endDate         String?  @db.Text
+  fullDate        String?  @db.Text
+  job_description String?  @db.Text
+  active          Boolean? @default(false)
+
+  assessmentType AssessmentType @default(MULTIPLE_CHOICE)
+
+  attachments Attachment[]
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  // candidates to be interviewed: array of candidates
+  recepients Recipient[]
+
+  candidates Candidate[]
+
+  questions Question[]
+
+  duration String?
+  status   InterviewStage? @default(UNSHEDULED)
+
+  interviewType InterviewType?
+
+  interviewTypeListId String?
+  interviewTypeList   InterviewTypeList? @relation(fields: [interviewTypeListId], references: [id])
+
+  interviewProcessId String?
+  interviewProcess   InterviewProcess? @relation(fields: [interviewProcessId], references: [id])
+
+  interviewDurationId String?
+  interviewDuration   InterviewDuration? @relation(fields: [interviewDurationId], references: [id])
+
+  levelId String?
+  level   InterviewLevel? @relation(fields: [levelId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([levelId])
+  @@index([interviewTypeListId])
+  @@index([interviewDurationId])
+  @@index([interviewProcessId])
+}
+
+model Category {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  organizations Organization[]
+}
+
+model Recipient {
+  id          String      @id @default(uuid())
+  email       String      @unique
+  Interview   Interviews? @relation(fields: [interviewId], references: [id])
+  interviewId String?
+
+  @@index([interviewId])
+}
+
+model InterviewLevel {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  interviews Interviews[]
+}
+
+model InterviewDuration {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  interviews Interviews[]
+}
+
+model InterviewProcess {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  interviews Interviews[]
+}
+
+model InterviewTypeList {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  interviews Interviews[]
+}
+
+model Attachment {
+  id   String @id @default(uuid())
+  name String
+  url  String @db.Text
+
+  interviewId String
+  interview   Interviews @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([interviewId])
+}
+
+model Candidate {
+  id          String  @id @default(uuid())
+  name        String  @db.Text
+  email       String  @db.Text
+  duration    String? @db.Text
+  phoneNumber String  @db.Text
+  callID      String? @db.Text
+
+  score  String?          @db.Text
+  status CandidateStatus? @default(NOT_STARTED)
+
+  interviewId String
+  interview   Interviews @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  accessment Accessment[]
+
+  experience    String? @db.Text
+  skills        String? @db.Text
+  communication String? @db.Text
+  impression    String? @db.Text
+
+  report Report[]
+
+  recording String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([interviewId])
+}
+
+model Notification {
+  id    String @id @default(uuid())
+  title String @db.Text
+
+  orgId        String
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+}
+
+model Accessment {
+  id String @id @default(uuid())
+
+  question      String @db.Text
+  answer        String @db.Text
+  correctAnswer String @db.Text
+  averageScore  String @db.Text
+
+  assessmentType AssessmentType @default(MULTIPLE_CHOICE)
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model Report {
+  id String @id @default(uuid())
+
+  created_at String @db.Text
+  text       String @db.Text
+  user       String @db.Text
+  c_id       String @db.Text
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  interviewId String
+  interview   Interviews @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
+}
+
+enum AssessmentType {
+  MULTIPLE_CHOICE
+  ESSAY
+  CODING_CHALLENGE
+  PHONE
+}
+
+enum InterviewType {
+  PHONE
+  BEHAVIOURAL
+}
+
+enum InterviewStage {
+  UNSHEDULED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum InterviewProcessType {
+  PHONE_CALL
+  CHAT
+}
+
+enum CandidateStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
